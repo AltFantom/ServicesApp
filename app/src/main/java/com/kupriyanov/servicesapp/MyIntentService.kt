@@ -1,24 +1,16 @@
 package com.kupriyanov.servicesapp
 
+import android.app.IntentService
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import kotlinx.coroutines.*
 
-class MyForegroundService : Service() {
-
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
-
-    override fun onBind(intent: Intent?): IBinder? {
-        TODO("Not yet implemented")
-    }
+class MyIntentService : IntentService(NAME) {
 
     override fun onCreate() {
         super.onCreate()
@@ -27,26 +19,22 @@ class MyForegroundService : Service() {
         startForeground(NOTIFICATION_ID, createNotification())
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        log("onStartCommand")
-        coroutineScope.launch {
-            for (i in 0 until 3) {
-                log("Time: $i")
-                delay(1000)
-            }
-            stopSelf()
+    override fun onHandleIntent(intent: Intent?) {
+        log("MyIntentService")
+        for (i in 0 until 3) {
+            log("Time: $i")
+            Thread.sleep(1000)
         }
-        return START_STICKY
     }
 
     override fun onDestroy() {
         log("onDestroy")
-        coroutineScope.cancel()
         super.onDestroy()
     }
 
+
     private fun log(message: String) {
-        Log.d("SERVICE_TAG", "MyForegroundService: $message")
+        Log.d("SERVICE_TAG", "MyIntentService: $message")
     }
 
     private fun createNotificationChannel() {
@@ -76,9 +64,10 @@ class MyForegroundService : Service() {
         private const val NOTIFICATION_ID = 1
         private const val CHANNEL_ID = "channel_id"
         private const val CHANNEL_NAME = "channel_name"
+        private const val NAME = "MyIntentService"
 
         fun newIntent(context: Context): Intent {
-            return Intent(context, MyForegroundService::class.java)
+            return Intent(context, MyIntentService::class.java)
         }
     }
 }
